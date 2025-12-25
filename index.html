@@ -170,25 +170,34 @@
             z-index: 10;
         }
 
-        /* সেন্ট্রাল লাইন (রাস্তা বা পিচের দাগ) */
-        .center-line {
-            position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, var(--accent-cyan), transparent);
-            transform: translateX(-50%);
-            z-index: -1;
-            opacity: 0.5;
-        }
+        /* ১. প্যারেন্ট কন্টেইনার (যেখানে সব কার্ড থাকবে) */
+.features-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 0; /* উপরে নিচে প্যাডিং */
+    position: relative; /* এই লাইনটি সবচেয়ে গুরুত্বপূর্ণ */
+    min-height: 500px; /* অন্তত কিছু হাইট থাকবে */
+}
 
-        .feature-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 60px;
-            position: relative;
-        }
-
+/* ২. সেন্ট্রাল লাইন (রাস্তা) */
+.center-line {
+    position: absolute;
+    left: 50%; 
+    top: 0; 
+    bottom: 0; /* এটি লাইনটিকে একদম নিচ পর্যন্ত টেনে লম্বা করবে */
+    width: 4px; /* দাগটি একটু মোটা করলে ভালো দেখাবে */
+    background: linear-gradient(
+        to bottom, 
+        transparent 0%, 
+        var(--accent-cyan) 10%, 
+        var(--accent-cyan) 90%, 
+        transparent 100%
+    ); /* শুরু ও শেষে হালকা হয়ে মিশে যাবে */
+    transform: translateX(-50%);
+    z-index: 0;
+    opacity: 0.6;
+    box-shadow: 0 0 15px var(--accent-cyan); /* গ্লো ইফেক্ট */
+}
         /* কার্ড ডিজাইন (কালো গ্লাস ইফেক্ট) */
         .glass-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
@@ -442,7 +451,21 @@
         </div>
     </div>
 
-   
+
+    <div class="features-container">
+    
+    <div class="center-line"></div>
+
+    <div class="feature-row">
+        </div>
+
+    <div class="feature-row reverse">
+        </div>
+
+    <div class="feature-row">
+        </div>
+
+    </div>
     
 
     <div style="text-align:center; padding: 20px;">
