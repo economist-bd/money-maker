@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mastermind | Monjurul Haque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #050a14;
+            --card-bg: rgba(20, 30, 48, 0.8);
+            --accent-cyan: #00f3ff;
+            --accent-purple: #bc13fe;
+            --text-white: #ffffff;
+            --glow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-white);
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(5, 10, 20, 0.9), rgba(5, 10, 20, 0.95)),
+                url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop'); 
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* --- ১. পার্সপেক্টিভ ফ্লোর (ছবিটির পিচ/রাস্তার মতো লুক) --- */
+        .perspective-floor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100px 100px;
+            transform: perspective(500px) rotateX(60deg) translateY(200px) scale(2);
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* আপনার চাওয়া ৩টি ডেকোরেটিভ ইমেজ */
+        .deco-left {
+            position: fixed;
+            left: -20px; bottom: 50px;
+            width: 250px; opacity: 0.1;
+            z-index: 0; pointer-events: none;
+        }
+        .deco-right {
+            position: fixed;
+            right: -20px; top: 100px;
+            width: 250px; opacity: 0.1;
+            z-index: 0; pointer-events: none;
+        }
+        .deco-full {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 400px;
+            object-fit: cover; opacity: 0.2;
+            z-index: 0; pointer-events: none; mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* --- ২. হেডার --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            z-index: 100;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .lang-btn {
+            background: linear-gradient(90deg, #ff8c00, #ff0080);
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        /* --- ৩. হিরো সেকশন (ছবির উপরের অংশ) --- */
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            font-style: italic;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* বাটন গ্রুপ (QR কোড ও বাটন) */
+        .cta-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .qr-box {
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+            width: 80px; height: 80px;
+        }
+
+        .main-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #ffbb00, #ff8800); /* ছবির মতো হলুদ/গোল্ড */
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 15px rgba(255, 187, 0, 0.6);
+            transition: transform 0.3s;
+        }
+        
+        .main-btn:hover { transform: scale(1.05); }
+        
+        .btn-ios { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); color: white; box-shadow: 0 0 15px rgba(188, 19, 254, 0.6); }
+
+        /* --- ৪. জিগ-জ্যাগ ফিচার কার্ড (ছবির আসল লুক) --- */
+        .features-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* সেন্ট্রাল লাইন (রাস্তা বা পিচের দাগ) */
+        .center-line {
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--accent-cyan), transparent);
+            transform: translateX(-50%);
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .feature-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        /* কার্ড ডিজাইন (কালো গ্লাস ইফেক্ট) */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            width: 48%; /* অর্ধেক জায়গা নিবে */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .card-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .card-content p {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* ভাসমান 3D ইমেজ (কার্ডের বাইরে বা পাশে) */
+        .floating-img {
+            width: 45%;
+            text-align: center;
+        }
+
+        .floating-img img {
+            width: 100%;
+            max-width: 250px;
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* অল্টারনেটিভ লেআউট (ডান-বাম সাজানোর জন্য) */
+        .feature-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .feature-row.reverse .glass-card {
+            text-align: right;
+        }
+
+        /* --- ৫. মডাল/পপআপ (কোর্সের জন্য) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #1a1f2e;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--accent-cyan);
+            position: relative;
+        }
+
+        /* মোবাইল রেসপন্সিভ */
+        @media (max-width: 768px) {
+            .feature-row, .feature-row.reverse {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .glass-card, .floating-img { width: 100%; }
+            .hero h1 { font-size: 1.8rem; }
+            .center-line { display: none; }
+            .feature-row.reverse .glass-card { text-align: center; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 50px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <img src="https://cdn-icons-png.flaticon.com/512/8759/8759252.png" class="deco-left" alt="Code">
+    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920323.png" class="deco-right" alt="Design">
+    <div class="perspective-floor"></div> <header>
+        <div class="logo"><i class="fas fa-microchip"></i> MH_ACADEMY</div>
+        <div class="lang-btn">🇧🇩 BN / EN</div>
+    </header>
+
+    <section class="hero">
+        <h1>Unlock Your <br> <span style="color:var(--accent-cyan)">Digital Potential</span> Today</h1>
+        <p>Join millions of learners. Master Coding, Graphic Design, and AI tools from one single platform.</p>
+
+        <div class="cta-group">
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Example" width="100%" alt="QR">
+            </div>
+            
+            <a href="#" class="main-btn">
+                <i class="fab fa-android"></i>
+                <div>
+                    <span style="font-size:0.6rem; display:block; font-weight:400;">Download for</span>
+                    Android
+                </div>
+            </a>
+            
+            <a href="#" class="main-btn btn-ios">
+                <i class="fab fa-apple"></i>
+                <div>
+                    <span style="font-size:0.6rem; display:block; font-weight:400;">View On</span>
+                    iOS / Web
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <div class="features-container">
+        <div class="center-line"></div>
+
+        <div class="feature-row" onclick="openModal('Graphics AI', 'Midjourney এবং Photoshop এর অ্যাডভান্সড ক্লাস।')">
+            <div class="glass-card">
+                <div class="card-content">
+                    <h3>Futuristic Graphics</h3>
+                    <p>Hot AI Tools featured with exciting prompt engineering techniques.</p>
+                    <button style="margin-top:10px; background:transparent; border:1px solid var(--accent-cyan); color:white; padding:5px 10px; cursor:pointer;">Course Details</button>
+                </div>
+            </div>
+            <div class="floating-img">
+                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/web-design-4560492-3784131.png" alt="Graphics">
+            </div>
+        </div>
+
+        <div class="feature-row reverse" onclick="openModal('Coding & Dev', 'Python, JS এবং React দিয়ে ফুল স্ট্যাক ডেভেলপমেন্ট।')">
+            <div class="glass-card">
+                <div class="card-content">
+                    <h3 style="color:var(--accent-purple)">Live Coding Sessions</h3>
+                    <p>Experience Live Coding streamed in real-time, featuring real projects and debugging.</p>
+                    <button style="margin-top:10px; background:transparent; border:1px solid var(--accent-purple); color:white; padding:5px 10px; cursor:pointer;">View Syllabus</button>
+                </div>
+            </div>
+            <div class="floating-img">
+                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/coding-screen-5683955-4734891.png" alt="Coding">
+            </div>
+        </div>
+
+        <div class="feature-row" onclick="openModal('Economics & Data', 'অর্থনীতি ও ডেটা সায়েন্সের সমন্বয়।')">
+            <div class="glass-card">
+                <div class="card-content">
+                    <h3 style="color:#ff8800">Data & Economics</h3>
+                    <p>Discover fantastic insights on economic trends using Python and ML.</p>
+                    <button style="margin-top:10px; background:transparent; border:1px solid #ff8800; color:white; padding:5px 10px; cursor:pointer;">Start Learning</button>
+                </div>
+            </div>
+            <div class="floating-img">
+                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/business-chart-5666750-4721473.png" alt="Data">
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center; padding: 20px;">
+        <h3>EXCITING NEW COURSES ADDED EVERY WEEK!</h3>
+    </div>
+
+    <div id="infoModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="mTitle" style="color:var(--accent-cyan)"></h2>
+            <p id="mDesc" style="margin: 15px 0; color:#ddd;"></p>
+            <button onclick="closeModal()" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:5px;">Close</button>
+        </div>
+    </div>
+
+    <footer>
+        MONJURUL HAQUE ACADEMY © 2025 ALL RIGHTS RESERVED.
+    </footer>
+
+    <script>
+        function openModal(title, desc) {
+            document.getElementById('infoModal').style.display = 'flex';
+            document.getElementById('mTitle').innerText = title;
+            document.getElementById('mDesc').innerText = desc;
+        }
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
