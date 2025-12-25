@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Creative Academy | Monjurul Haque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* কোডিং ও গ্রাফিক্স থিম কালার প্যালেট */
+            --bg-dark: #0f172a;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-glass: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #06b6d4; /* কোডিং ভাইব */
+            --accent-purple: #8b5cf6; /* গ্রাফিক্স ভাইব */
+            --text-white: #f8fafc;
+            --text-gray: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-white);
+            padding-bottom: 80px;
+            min-height: 100vh;
+            overflow-x: hidden; /* সাইড ইমেজ যেন স্ক্রল না তৈরি করে */
+            position: relative;
+        }
+
+        /* --- ডেকোরেটিভ ট্রান্সপারেন্ট ইমেজ (আপনার রিকোয়ারমেন্ট) --- */
+        
+        /* ১. বাম পাশের ছবি (কোডিং আইকন বা অ্যাবস্ট্রাক্ট) */
+        .deco-left {
+            position: fixed;
+            left: -50px;
+            bottom: 120px;
+            width: 250px;
+            opacity: 0.15;
+            z-index: 0;
+            pointer-events: none; /* লেখার ওপর ক্লিক করা যাবে */
+            transform: rotate(15deg);
+        }
+
+        /* ২. ডান পাশের ছবি (গ্রাফিক্স টুলস বা শেপ) */
+        .deco-right {
+            position: fixed;
+            right: -40px;
+            top: 100px;
+            width: 200px;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ৩. বাম থেকে ডান পর্যন্ত পুরো ছবি (ওয়েভ বা সার্কিট লাইন) */
+        .deco-full-width {
+            position: absolute;
+            top: 60px; /* হেডার এর ঠিক নিচে */
+            left: 0;
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: 0;
+            mix-blend-mode: overlay;
+        }
+
+        /* --- হেডার --- */
+        header {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- হিরো ও মার্কিউ --- */
+        .hero-section {
+            position: relative;
+            padding: 20px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .marquee-box {
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 3px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 8px 0;
+            font-size: 0.9rem;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-top: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            animation: scrollText 15s linear infinite;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- ফিল্টার বাটন --- */
+        .filters {
+            display: flex;
+            gap: 10px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            z-index: 2;
+            position: relative;
+        }
+
+        .filter-btn {
+            background: var(--card-glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-gray);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+        }
+
+        /* --- কোর্স গ্রিড (গ্লাস ইফেক্ট) --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+            position: relative;
+            z-index: 2; /* ডেকোরেশনের উপরে থাকবে */
+        }
+
+        .card {
+            background: var(--card-glass);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            font-family: 'Fira Code', monospace;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* --- মডাল (Popup) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            align-items: flex-end;
+        }
+
+        .modal-body {
+            background: #1e1b4b;
+            width: 100%;
+            max-height: 85vh;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            overflow-y: auto;
+            border-top: 1px solid var(--accent-cyan);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .syllabus-box {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border-left: 2px solid var(--accent-purple);
+        }
+
+        /* --- বটম নেভিগেশন --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-item {
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--accent-cyan);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+    </style>
+</head>
+<body>
+
+    <img src="https://cdn-icons-png.flaticon.com/512/8759/8759252.png" alt="Code Decoration" class="deco-left">
+    
+    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920323.png" alt="Graphics Decoration" class="deco-right">
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Technology_network_background.svg/2560px-Technology_network_background.svg.png" alt="Network Lines" class="deco-full-width">
+
+
+    <header>
+        <div class="logo">&lt;MH_DEV/&gt;</div>
+        <div style="color: var(--accent-cyan);">
+            <i class="fas fa-bell"></i>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <h2 style="font-weight: 300;">Future of <span style="color:var(--accent-cyan); font-weight:700;">Skills</span></h2>
+        <p style="font-size: 0.8rem; color: var(--text-gray);">গ্রাফিক্স ও কোডিং শিখুন AI এর শক্তিতে</p>
+    </div>
+
+    <div class="marquee-box">
+        <div class="marquee-text">
+            🚀 নতুন ব্যাচ শুরু হচ্ছে: AI for Graphic Design | 💻 Python Crash Course এ ৫০% ছাড়! | 🌐 ওয়েব ডেভেলপমেন্ট মেন্টরশিপ প্রোগ্রাম।
+        </div>
+    </div>
+
+    <div class="filters">
+        <div class="filter-btn active">All</div>
+        <div class="filter-btn">Coding</div>
+        <div class="filter-btn">Graphics</div>
+        <div class="filter-btn">Economics</div>
+    </div>
+
+    <div class="grid-container" id="courseGrid">
+        </div>
+
+    <div class="modal-overlay" id="courseModal">
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 id="mTitle" style="color: var(--accent-cyan);">Title Here</h3>
+                <i class="fas fa-times" onclick="closeModal()" style="font-size:1.5rem; cursor:pointer;"></i>
+            </div>
+            <img id="mImg" src="" style="width:100%; border-radius:10px; margin-bottom:15px;">
+            <p id="mDesc" style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.6;"></p>
+            
+            <h4 style="margin-top:20px; color:var(--accent-purple);">📋 ক্লাস প্ল্যানিং</h4>
+            <div id="mSyllabus"></div>
+
+            <button style="width:100%; padding:15px; margin-top:20px; background:linear-gradient(to right, var(--accent-cyan), var(--accent-purple)); border:none; border-radius:10px; color:white; font-weight:bold; font-size:1rem;">
+                Enroll Course <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active"><i class="fas fa-home"></i></div>
+        <div class="nav-item"><i class="fas fa-layer-group"></i></div>
+        <div class="nav-item"><i class="fas fa-code"></i></div>
+        <div class="nav-item"><i class="fas fa-user"></i></div>
+    </div>
+
+    <script>
+        // ১০টি কোর্স ডাটাবেস
+        const courses = [
+            {
+                category: "Graphics",
+                title: "AI Graphic Design Masterclass",
+                img: "https://images.unsplash.com/photo-1626785774573-4b799314346d?w=500&q=80",
+                desc: "Adobe Photoshop এবং Midjourney ব্যবহার করে ফিউচারিস্টিক ডিজাইন তৈরি শিখুন।",
+                syllabus: ["Intro to Generative AI", "Photoshop Generative Fill", "Logo Design with AI", "Freelancing Guide"]
+            },
+            {
+                category: "Coding",
+                title: "Full Stack Web Dev",
+                img: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=500&q=80",
+                desc: "HTML, CSS, JS এবং React শিখে একজন কমপ্লিট ওয়েব ডেভেলপার হোন।",
+                syllabus: ["Frontend Basics", "React JS Hook", "Backend with Node.js", "Database Management"]
+            },
+            {
+                category: "Economics",
+                title: "Economics & Data Science",
+                img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80",
+                desc: "অর্থনীতির জটিল থিওরিগুলো ডেটা সায়েন্স এবং পাইথন দিয়ে বিশ্লেষণ করুন।",
+                syllabus: ["Python for Economists", "Data Visualization", "Econometrics", "Forecasting Models"]
+            },
+            {
+                category: "Coding",
+                title: "Python Automation",
+                img: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=500&q=80",
+                desc: "বোরিং কাজগুলো পাইথন স্ক্রিপ্ট দিয়ে অটোমেট করুন।",
+                syllabus: ["Python Basics", "Web Scraping", "Bot Building", "Excel Automation"]
+            },
+            {
+                category: "Graphics",
+                title: "UI/UX Design with Figma",
+                img: "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=500&q=80",
+                desc: "মোবাইল অ্যাপ এবং ওয়েবসাইট ডিজাইন করার আধুনিক টুল Figma শিখুন।",
+                syllabus: ["Wireframing", "Prototyping", "Design Systems", "User Testing"]
+            },
+            {
+                category: "AI",
+                title: "Prompt Engineering",
+                img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&q=80",
+                desc: "ChatGPT এবং Claude থেকে সেরা আউটপুট পাওয়ার টেকনিক।",
+                syllabus: ["Zero-shot Prompting", "Chain of Thought", "Content Strategy", "Advanced Logic"]
+            },
+            {
+                category: "Video",
+                title: "AI Video Editing",
+                img: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=500&q=80",
+                desc: "Premiere Pro এবং AI টুলস দিয়ে দ্রুত ভিডিও এডিটিং।",
+                syllabus: ["CapCut & Premiere", "AI Voiceover", "Auto Captions", "Color Grading"]
+            },
+            {
+                category: "Coding",
+                title: "GitHub & Version Control",
+                img: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=500&q=80",
+                desc: "টিম ওয়ার্ক এবং কোড ম্যানেজমেন্টের জন্য Git এবং GitHub শিখুন।",
+                syllabus: ["Git Commands", "Branching & Merging", "Pull Requests", "Open Source"]
+            },
+            {
+                category: "Business",
+                title: "Digital Marketing AI",
+                img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80",
+                desc: "AI দিয়ে ফেসবুক অ্যাড এবং কন্টেন্ট মার্কেটিং স্ট্র্যাটেজি।",
+                syllabus: ["Ad Copywriting", "Audience Targeting", "SEO with AI", "Analytics"]
+            },
+            {
+                category: "Coding",
+                title: "App Development (Flutter)",
+                img: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&q=80",
+                desc: "একটি কোড দিয়েই এন্ড্রয়েড এবং আইফোন অ্যাপ তৈরি করুন।",
+                syllabus: ["Dart Language", "Flutter Widgets", "State Management", "Publishing App"]
+            }
+        ];
+
+        // গ্রিডে কার্ড লোড করা
+        const grid = document.getElementById('courseGrid');
+        
+        courses.forEach((c, index) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.onclick = () => openModal(index);
+            div.innerHTML = `
+                <img src="${c.img}" class="card-img">
+                <div class="card-body">
+                    <span class="tag">#${c.category}</span>
+                    <div class="card-title">${c.title}</div>
+                </div>
+            `;
+            grid.appendChild(div);
+        });
+
+        // মডাল কন্ট্রোল
+        const modal = document.getElementById('courseModal');
+        
+        function openModal(index) {
+            const data = courses[index];
+            document.getElementById('mTitle').innerText = data.title;
+            document.getElementById('mImg').src = data.img;
+            document.getElementById('mDesc').innerText = data.desc;
+            
+            const sylDiv = document.getElementById('mSyllabus');
+            sylDiv.innerHTML = '';
+            data.syllabus.forEach((s, i) => {
+                sylDiv.innerHTML += `
+                    <div class="syllabus-box">
+                        <small style="color:var(--accent-cyan)">Class 0${i+1}</small>
+                        <div style="font-weight:500">${s}</div>
+                    </div>
+                `;
+            });
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // মডালের বাইরে ক্লিক করলে বন্ধ হবে
+        modal.onclick = (e) => {
+            if(e.target === modal) closeModal();
+        }
+    </script>
+</body>
+</html>
