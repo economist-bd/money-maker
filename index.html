@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mastermind | Monjurul Haque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #1b1f23; /* রেফারেন্স সাইটের ডার্ক ব্যাকগ্রাউন্ড */
+            --card-bg: #2a3038;
+            --accent-gold: #af9963; /* প্রিমিয়াম গোল্ড কালার */
+            --text-white: #ffffff;
+            --text-gray: #b0b0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-white);
+            padding-bottom: 70px; /* বটম মেনুর জন্য জায়গা */
+        }
+
+        /* হেডার ডিজাইন */
+        header {
+            background: linear-gradient(90deg, #192243 0%, #000000 100%);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-icons i {
+            font-size: 1.2rem;
+            margin-left: 15px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* হিরো স্লাইডার (ব্যানার) */
+        .hero-banner {
+            width: 100%;
+            height: 180px;
+            background: url('https://source.unsplash.com/random/800x400/?artificial-intelligence') center/cover;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(transparent, #1b1f23);
+            height: 50px;
+        }
+
+        /* মার্কিউ (স্ক্রলিং টেক্সট) */
+        .marquee-container {
+            background: #23282e;
+            color: var(--text-white);
+            padding: 8px 0;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ক্যাটাগরি ফিল্টার (বেটিং সাইটের গেম প্রোভাইডার স্টাইল) */
+        .category-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px;
+            gap: 10px;
+            background: #1b1f23;
+        }
+        
+        .cat-pill {
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            border: 1px solid #3e444d;
+            cursor: pointer;
+        }
+
+        .cat-pill.active {
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* কোর্স গ্রিড (গেম লিস্টের মতো) */
+        .section-title {
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            border-left: 4px solid var(--accent-gold);
+            margin: 10px 0;
+            background: #23282e;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* মোবাইলে ২টা কলাম */
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .course-card:active {
+            transform: scale(0.98);
+        }
+
+        .course-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .course-info {
+            padding: 10px;
+        }
+
+        .course-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .course-meta {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        /* মডাল (Popup Details) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end; /* নিচ থেকে উঠবে */
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            height: 85%;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            cursor: pointer;
+        }
+
+        .syllabus-item {
+            background: #333942;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        /* বটম নেভিগেশন বার */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #192243;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            z-index: 1500;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #7a8294;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .enroll-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #af9963, #d4c08b);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">AI SCHOOL</div>
+        <div class="header-icons">
+            <i class="fas fa-search"></i>
+            <i class="fas fa-bell"></i>
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </header>
+
+    <div class="hero-banner">
+        <div class="hero-overlay"></div>
+    </div>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            📢 স্বাগতম! আমাদের নতুন "AI for Economics" কোর্সটি চালু হয়েছে। আজই এনরোল করুন এবং ৫০% ছাড় পান! | সব কোর্সেই সার্টিফিকেট প্রদান করা হয়।
+        </div>
+    </div>
+
+    <div class="category-scroll">
+        <div class="cat-pill active">All AI</div>
+        <div class="cat-pill">Python</div>
+        <div class="cat-pill">Graphics AI</div>
+        <div class="cat-pill">Economics</div>
+        <div class="cat-pill">Web Dev</div>
+    </div>
+
+    <div class="section-title">🔥 Trending Courses</div>
+    <div class="course-grid" id="courseContainer">
+        </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-book-open"></i>
+            <span>Courses</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-wallet"></i> <span>My Learning</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </div>
+    </div>
+
+    <div class="modal" id="courseModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img src="" id="modalImg" style="width:100%; height: 150px; object-fit: cover; border-radius: 10px;">
+            <h2 id="modalTitle" style="margin: 15px 0; color: var(--accent-gold);"></h2>
+            <p id="modalDesc" style="font-size: 0.9rem; color: #ddd; margin-bottom: 20px;"></p>
+            
+            <h4 style="border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px;">📅 ক্লাস প্ল্যানিং</h4>
+            <div id="modalSyllabus">
+                </div>
+
+            <button class="enroll-btn">কোর্সটি শুরু করুন</button>
+        </div>
+    </div>
+
+    <script>
+        // কোর্সের ডাটা (১০টি এআই কোর্স)
+        const courses = [
+            {
+                title: "AI দিয়ে গ্রাফিক ডিজাইন",
+                img: "https://source.unsplash.com/random/300x200/?graphic-design,ai",
+                desc: "Midjourney এবং Photoshop AI ব্যবহার করে প্রফেশনাল ছবি এডিটিং শিখুন।",
+                syllabus: ["AI Tools পরিচিতি", "Prompt Engineering", "Image Manipulation", "Portfolio Project"]
+            },
+            {
+                title: "অর্থনীতিতে AI-এর ব্যবহার",
+                img: "https://source.unsplash.com/random/300x200/?economics,chart",
+                desc: "অর্থনীতির ডেটা বিশ্লেষণ এবং মার্কেট প্রেডিকশনে মেশিন লার্নিং ব্যবহার।",
+                syllabus: ["Data Analysis Basics", "Predictive Modeling", "Economic Forecasting", "Case Studies"]
+            },
+            {
+                title: "Python for AI",
+                img: "https://source.unsplash.com/random/300x200/?python,code",
+                desc: "শূন্য থেকে পাইথন প্রোগ্রামিং শিখুন এবং AI-এর জন্য নিজেকে প্রস্তুত করুন।",
+                syllabus: ["Python Syntax", "Data Structures", "NumPy & Pandas", "Basic Algorithms"]
+            },
+            {
+                title: "Machine Learning Basic",
+                img: "https://source.unsplash.com/random/300x200/?robot,brain",
+                desc: "মেশিন কীভাবে শেখে? Supervised এবং Unsupervised লার্নিং এর হাতেখড়ি।",
+                syllabus: ["ML Concepts", "Regression", "Classification", "Scikit-Learn"]
+            },
+            {
+                title: "Web Development with AI",
+                img: "https://source.unsplash.com/random/300x200/?coding,web",
+                desc: "ChatGPT এবং GitHub Copilot ব্যবহার করে ১০ গুণ দ্রুত ওয়েবসাইট তৈরি করুন।",
+                syllabus: ["HTML/CSS with AI", "JS Debugging", "Auto-Code Generation", "Deploying Apps"]
+            },
+            {
+                title: "ChatGPT Masterclass",
+                img: "https://source.unsplash.com/random/300x200/?chatgpt,ai",
+                desc: "আপনার দৈনন্দিন কাজ, ইমেইল রাইটিং এবং কন্টেন্ট ক্রিয়েশনে ChatGPT-এর বস হোন।",
+                syllabus: ["Prompt Basics", "Advanced Prompting", "Content Creation", "Automation"]
+            },
+            {
+                title: "Deep Learning & Neural Networks",
+                img: "https://source.unsplash.com/random/300x200/?neural-network",
+                desc: "মানুষের মস্তিষ্কের মতো কাজ করা নিউরাল নেটওয়ার্ক সম্পর্কে বিস্তারিত।",
+                syllabus: ["Neural Nets Intro", "TensorFlow Basics", "Image Recognition", "Project"]
+            },
+            {
+                title: "Data Science Bootcamp",
+                img: "https://source.unsplash.com/random/300x200/?data,science",
+                desc: "বিগ ডেটা হ্যান্ডলিং এবং ভিজ্যুয়ালাইজেশন এর কমপ্লিট গাইড।",
+                syllabus: ["Data Cleaning", "Visualization Tools", "Statistics for DS", "Final Report"]
+            },
+            {
+                title: "Video Editing with AI",
+                img: "https://source.unsplash.com/random/300x200/?video,editing",
+                desc: "Premiere Pro এবং AI টুলস দিয়ে ভিডিও এডিটিং এর জাদুকরী কৌশল।",
+                syllabus: ["Basic Editing", "AI Color Grading", "Sound Design", "Auto Captions"]
+            },
+            {
+                title: "Freelancing with AI Skills",
+                img: "https://source.unsplash.com/random/300x200/?freelance,money",
+                desc: "AI স্কিল ব্যবহার করে Fiverr এবং Upwork এ কীভাবে আয় করবেন।",
+                syllabus: ["Profile Setup", "Gig Creation", "Client Communication", "Project Delivery"]
+            }
+        ];
+
+        // কোর্সগুলো পেজে দেখানোর ফাংশন
+        const container = document.getElementById('courseContainer');
+
+        courses.forEach((course, index) => {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            card.onclick = () => openModal(index); // ক্লিক করলে মডাল ওপেন হবে
+
+            card.innerHTML = `
+                <div class="badge">New</div>
+                <img src="${course.img}" class="course-img" alt="${course.title}">
+                <div class="course-info">
+                    <div class="course-title">${course.title}</div>
+                    <div class="course-meta">
+                        <span><i class="fas fa-video"></i> 20 Lessons</span>
+                        <span style="color: var(--accent-gold);">Enroll Now</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // মডাল ওপেন করার ফাংশন
+        function openModal(index) {
+            const modal = document.getElementById('courseModal');
+            const course = courses[index];
+
+            document.getElementById('modalImg').src = course.img;
+            document.getElementById('modalTitle').innerText = course.title;
+            document.getElementById('modalDesc').innerText = course.desc;
+
+            // সিলেবাস জেনারেট করা
+            const syllabusDiv = document.getElementById('modalSyllabus');
+            syllabusDiv.innerHTML = ""; // আগের ডাটা ক্লিয়ার করা
+            course.syllabus.forEach((item, i) => {
+                syllabusDiv.innerHTML += `
+                    <div class="syllabus-item">
+                        <small style="color:gray;">Class ${i + 1}</small><br>
+                        <strong>${item}</strong>
+                    </div>
+                `;
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        // মডাল বন্ধ করার ফাংশন
+        function closeModal() {
+            document.getElementById('courseModal').style.display = 'none';
+        }
+
+        // উইন্ডোতে ক্লিক করলে মডাল বন্ধ হবে
+        window.onclick = function(event) {
+            const modal = document.getElementById('courseModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
